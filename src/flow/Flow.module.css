@@ -1,0 +1,19 @@
+:global(.flow-background) {
+  background-color: var(--gray-1);
+}
+
+:global(.flow-controls) {
+  background-color: var(--gray-12);
+}
+
+:global(.flow-controls > button) {
+  background-color: var(--gray-12);
+}
+
+:global(.flow-controls > button:hover) {
+  background-color: var(--gray-11);
+}
+
+:global(.flow-controls > button > svg) {
+  fill: var(--gray-1);
+}
