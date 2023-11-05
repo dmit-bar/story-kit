@@ -1,4 +1,7 @@
-:global(.flow-background) {
+:global(.light .flow-background) {
+  background-color: var(--gray-3);
+}
+:global(.dark .flow-background) {
   background-color: var(--gray-1);
 }
 

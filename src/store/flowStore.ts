@@ -16,6 +16,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 type RFState = {
   nodes: Node[];
   edges: Edge[];
+  addNode: (newNode: Node) => void;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
@@ -24,10 +25,15 @@ type RFState = {
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
-const useStore = createWithEqualityFn<RFState>(
+const useFlowStore = createWithEqualityFn<RFState>(
   (set, get) => ({
     nodes: initialNodes,
     edges: initialEdges,
+    addNode: (newNode: Node) => {
+      set({
+        nodes: [...get().nodes, newNode],
+      });
+    },
     onNodesChange: (changes: NodeChange[]) => {
       set({
         nodes: applyNodeChanges(changes, get().nodes),
@@ -50,10 +56,11 @@ const useStore = createWithEqualityFn<RFState>(
 const rfSelector = (state: RFState) => ({
   nodes: state.nodes,
   edges: state.edges,
+  addNode: state.addNode,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
 });
 
-export { rfSelector, useStore };
+export { rfSelector, useFlowStore };
 export type { RFState };

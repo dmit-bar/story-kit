@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -7,22 +7,24 @@ import ReactFlow, {
   MiniMap,
   Panel,
 } from "reactflow";
-import { FlowContextMenu } from "../components";
-import { rfSelector, useStore } from "../store";
+
 const fitViewOptions: FitViewOptions = {
   padding: 0.2,
 };
 
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { IconButton } from "@radix-ui/themes";
-import { useThemeStore } from "../store/theme-store";
+import { rfSelector, useFlowStore } from "@store/flowStore";
+import { useThemeStore } from "@store/themeStore";
+import { FlowContextMenu, NodeType, customNodeTypes } from "..";
 import "./Flow.module.css";
 
 const Flow = () => {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect } =
-    useStore(rfSelector);
+    useFlowStore(rfSelector);
   const { isDark, onThemeChange } = useThemeStore();
   const flowRef = useRef<HTMLDivElement>(null);
+  const flowWrapperRef = useRef<HTMLDivElement>(null);
   const flowContextMenuRef = useRef<HTMLDivElement>(null);
 
   const [menuPosition, setMenuPosition] = useState({});
@@ -57,34 +59,43 @@ const Flow = () => {
     []
   );
 
+  const nodeTypes: NodeType = useMemo<NodeType>(() => customNodeTypes, []);
+
   return (
-    <FlowContextMenu ref={flowContextMenuRef} menuPosition={menuPosition}>
-      <div style={{ width: "100vw", height: "100vh" }}>
-        <ReactFlow
-          ref={flowRef}
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onPaneContextMenu={handleOpenContextMenu}
-          fitView
-          fitViewOptions={fitViewOptions}
-        >
-          <Controls className="flow-controls" />
-          <MiniMap zoomable pannable />
-          <Panel position="top-right">
-            <IconButton highContrast color="gray" onClick={handleSwitchTheme}>
-              {isDark ? <MoonIcon /> : <SunIcon />}
-            </IconButton>
-          </Panel>
-          <Background
-            variant={BackgroundVariant.Dots}
-            className="flow-background"
-          />
-        </ReactFlow>
-      </div>
-    </FlowContextMenu>
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ReactFlow
+        ref={flowRef}
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onPaneContextMenu={handleOpenContextMenu}
+        fitView
+        fitViewOptions={fitViewOptions}
+      >
+        <div ref={flowWrapperRef}>
+          <FlowContextMenu
+            ref={flowContextMenuRef}
+            flowWrapperRef={flowWrapperRef}
+            menuPosition={menuPosition}
+          >
+            <Controls className="flow-controls" />
+            <MiniMap zoomable pannable />
+            <Panel position="top-right">
+              <IconButton highContrast color="gray" onClick={handleSwitchTheme}>
+                {isDark ? <MoonIcon /> : <SunIcon />}
+              </IconButton>
+            </Panel>
+            <Background
+              variant={BackgroundVariant.Dots}
+              className="flow-background"
+            />
+          </FlowContextMenu>
+        </div>
+      </ReactFlow>
+    </div>
   );
 };
 
